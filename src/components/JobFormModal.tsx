@@ -13,8 +13,13 @@ import { Badge } from '@/components/ui/badge';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Job, JobFormData } from '@/types/job';
 
+const generateJobId = () => {
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).substring(2, 5).toUpperCase();
+  return `JOB-${timestamp}-${random}`;
+};
+
 const jobSchema = z.object({
-  job_id: z.string().min(1, 'Job ID is required').max(20, 'Job ID must be less than 20 characters'),
   title: z.string().min(1, 'Title is required').max(100, 'Title must be less than 100 characters'),
   company: z.string().min(1, 'Company is required').max(100, 'Company must be less than 100 characters'),
   location: z.string().min(1, 'Location is required').max(100, 'Location must be less than 100 characters'),
@@ -40,7 +45,6 @@ export function JobFormModal({ job, open, onClose, onSubmit, isLoading }: JobFor
   const form = useForm<z.infer<typeof jobSchema>>({
     resolver: zodResolver(jobSchema),
     defaultValues: {
-      job_id: job?.job_id || '',
       title: job?.title || '',
       company: job?.company || '',
       location: job?.location || '',
@@ -77,7 +81,7 @@ export function JobFormModal({ job, open, onClose, onSubmit, isLoading }: JobFor
       return;
     }
     const formData: JobFormData = {
-      job_id: data.job_id,
+      job_id: job?.job_id || generateJobId(),
       title: data.title,
       company: data.company,
       location: data.location,
@@ -103,20 +107,6 @@ export function JobFormModal({ job, open, onClose, onSubmit, isLoading }: JobFor
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="job_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Job ID</FormLabel>
-                    <FormControl>
-                      <Input placeholder="JOB-001" {...field} disabled={!!job} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
               <FormField
                 control={form.control}
                 name="status"
